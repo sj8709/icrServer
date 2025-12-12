@@ -1,0 +1,8 @@
+# Shell scripts - always use LF
+*.sh text eol=lf
+*.tpl text eol=lf
+*.conf text eol=lf
+
+# Windows batch files - always use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
