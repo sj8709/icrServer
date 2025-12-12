@@ -1,2 +1,4 @@
 *.war
-*.zippackages/JDK*.tar.gz
+*.zip
+packages/JDK*.tar.gz
+.claude/settings.local.json
