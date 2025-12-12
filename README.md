@@ -89,6 +89,7 @@ solution/config/site.conf
 |------|------|------|
 | `SITE` | 사이트 식별자 | `INFODEA` |
 | `ENV` | 환경 프로파일 (Spring) | `dev`, `prod-web`, `prod-batch` |
+| `JAVA_HOME` | Java 설치 경로 | `/usr/lib/jvm/temurin-21` |
 | `INSTALL_BASE` | 설치 기본 경로 | `/opt/icr-solution` |
 | `TOMCAT_DIST_NAME` | Tomcat 배포판 이름 | `apache-tomcat-10.1.50` |
 | `TOMCAT_HOME` | Tomcat 심볼릭 링크 경로 | `/opt/icr-solution/tomcat` |
@@ -96,17 +97,43 @@ solution/config/site.conf
 | `WAS_APP_BASE` | 앱 배포 디렉토리 (상대경로) | `icr-webapps` |
 | `JASYPT_ENCRYPTOR_PASSWORD` | Jasypt 복호화 키 | `********` |
 
+> **참고**: `JAVA_HOME`은 사이트 환경에 맞게 설정 필수. 일반적인 경로 예시:
+> - RHEL/CentOS: `/usr/lib/jvm/java-17-openjdk`
+> - Ubuntu/Debian: `/usr/lib/jvm/java-17-openjdk-amd64`
+> - Eclipse Temurin: `/usr/lib/jvm/temurin-21`
+> - Amazon Corretto: `/usr/lib/jvm/java-17-amazon-corretto`
+
 ### 선택 설정
 
 | 변수 | 설명 | 기본값 |
 |------|------|--------|
+| `WAS_SHUTDOWN_PORT` | Tomcat Shutdown 포트 | `8005` |
 | `WAS_HTTPS_PORT` | HTTPS 포트 | `28443` |
 | `WAS_ENABLE_HTTPS` | HTTPS 커넥터 활성화 | `N` |
+| `WAS_SSL_KEYSTORE_FILE` | SSL 인증서 파일명 | `localhost-rsa.jks` |
+| `WAS_SSL_KEYSTORE_PASSWORD` | SSL 인증서 비밀번호 | `changeit` |
 | `JVM_XMS` | JVM 초기 힙 | `512m` |
 | `JVM_XMX` | JVM 최대 힙 | `1024m` |
 | `JVM_TIMEZONE` | JVM 타임존 | `Asia/Seoul` |
 | `JVM_ENCODING` | JVM 인코딩 | `UTF-8` |
 | `ICR_CONFIG_DIR` | 외부 설정 디렉토리 | `${INSTALL_BASE}/config` |
+
+> **참고**: `WAS_SHUTDOWN_PORT`는 동일 서버에 다중 Tomcat 인스턴스를 운영할 때 충돌 방지를 위해 인스턴스별로 다르게 설정해야 한다.
+
+### SSL/TLS 인증서 설정 (HTTPS 사용 시)
+
+`WAS_ENABLE_HTTPS=Y`일 때 SSL 인증서 설정이 필요하다.
+
+| 변수 | 설명 | 비고 |
+|------|------|------|
+| `WAS_SSL_KEYSTORE_FILE` | 인증서 파일명 | `TOMCAT_HOME/conf/` 기준 |
+| `WAS_SSL_KEYSTORE_PASSWORD` | 인증서 비밀번호 | - |
+
+**설치 시 검증**:
+- 인증서 파일이 없으면 설치 중단
+- 기본값(`localhost-rsa.jks` + `changeit`) 사용 시 경고 출력
+
+> **운영환경 주의**: 기본 샘플 인증서는 테스트용이므로, 운영환경에서는 반드시 실제 인증서로 교체해야 한다.
 
 ### 서비스 제어 설정
 
@@ -138,10 +165,11 @@ ICR_FORCE_REGEN=Y ./install.sh
 1. `site.conf` 로드 및 검증
 2. `INSTALL_BASE` 디렉토리 구조 생성
 3. Tomcat 압축 해제 및 심볼릭 링크 설정
-4. 템플릿에서 설정 파일 생성 (`server.xml`, `context.xml`, `web.xml`, `setenv.sh`)
-5. Tomcat conf/bin에 설정 파일 심볼릭 링크
-6. WAR 초기 배포
-7. 스크립트 실행 권한 설정 (`chmod +x`)
+4. SSL 인증서 검증 (HTTPS 활성화 시)
+5. 템플릿에서 설정 파일 생성 (`server.xml`, `context.xml`, `web.xml`, `setenv.sh`)
+6. Tomcat conf/bin에 설정 파일 심볼릭 링크
+7. WAR 초기 배포
+8. 스크립트 실행 권한 설정 (`chmod +x`)
 
 ### Windows에서 작업 후 권한 복구
 
@@ -458,5 +486,4 @@ tail -f /opt/icr-solution/tomcat/logs/catalina.out
 1. **각 스크립트는 역할이 명확히 분리**되어 있으며, 혼용 사용을 권장하지 않는다.
 2. `site.conf` 수정 후에는 **재설치**(`./uninstall.sh && ./install.sh`) 또는 **설정 강제 재생성**(`ICR_FORCE_REGEN=Y ./install.sh`)이 필요하다.
 3. `uninstall.sh` 기본 모드는 **설정/데이터를 유지**하므로, 재설치 시 기존 설정이 재사용된다.
-4. 운영 중 WAR 교체는 반드시 `deploy-war.sh`를 사용한다. (백업 + 롤백 가능)
-"# icrServer" 
+4. 운영 중 WAR 교체는 반드시 `deploy-war.sh`를 사용한다. (백업 + 롤백 가능) 
