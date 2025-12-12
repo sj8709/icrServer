@@ -7,7 +7,7 @@
 # ──────────────────────────────────────────────
 # 1. Java 홈 / PATH
 # ──────────────────────────────────────────────
-export JAVA_HOME=/usr/lib/jvm/temurin-21
+export JAVA_HOME="@JAVA_HOME@"
 export PATH="$JAVA_HOME/bin:$PATH"
 
 # ──────────────────────────────────────────────

@@ -97,6 +97,9 @@ load_site_conf() {
     : "${TOMCAT_HOME:=/opt/tomcat}"
     : "${INSTALL_BASE:=/opt/icr-solution}"
     : "${WAS_ENABLE_HTTPS:=N}"
+    : "${WAS_SHUTDOWN_PORT:=8005}"
+    : "${WAS_SSL_KEYSTORE_FILE:=localhost-rsa.jks}"
+    : "${WAS_SSL_KEYSTORE_PASSWORD:=changeit}"
 
     # JVM 기본값 (site.conf 에 없을 때)
     : "${JVM_XMS:=512m}"
@@ -222,11 +225,14 @@ render_server_xml() {
 
     cp "${TEMPLATE_TOMCAT_DIR}/server.xml.tpl" "${tmp}"
 
-    # 기본 토큰 치환 (포트 / appBase)
+    # 기본 토큰 치환 (포트 / appBase / SSL)
     sed -i \
+        -e "s|@WAS_SHUTDOWN_PORT@|${WAS_SHUTDOWN_PORT}|g" \
         -e "s|@WAS_HTTP_PORT@|${WAS_HTTP_PORT}|g" \
         -e "s|@WAS_HTTPS_PORT@|${WAS_HTTPS_PORT:-8443}|g" \
         -e "s|@WAS_APP_BASE@|${WAS_APP_BASE}|g" \
+        -e "s|@WAS_SSL_KEYSTORE_FILE@|${WAS_SSL_KEYSTORE_FILE}|g" \
+        -e "s|@WAS_SSL_KEYSTORE_PASSWORD@|${WAS_SSL_KEYSTORE_PASSWORD}|g" \
         "${tmp}"
 
     # HTTPS 플래그 처리
@@ -312,6 +318,7 @@ render_setenv_sh() {
 
     # 토큰 치환 (슬래시 포함 값 안전하게 | 사용)
     sed -i \
+        -e "s|@JAVA_HOME@|${JAVA_HOME}|g" \
         -e "s|@ENV@|${ENV}|g" \
         -e "s|@SITE@|${SITE}|g" \
         -e "s|@JVM_XMS@|${JVM_XMS}|g" \
@@ -406,7 +413,37 @@ deploy_war() {
 }
 
 # ──────────────────────────────────────────────
-# 11. 스크립트 실행 권한 설정
+# 11. SSL 인증서 검증 (HTTPS 활성화 시)
+# ──────────────────────────────────────────────
+validate_ssl_config() {
+    # HTTPS 비활성화면 검증 스킵
+    if [[ "${WAS_ENABLE_HTTPS}" != "Y" ]]; then
+        return 0
+    fi
+
+    log "SSL 인증서 설정 검증 중..."
+
+    local keystore_path="${TOMCAT_HOME}/conf/${WAS_SSL_KEYSTORE_FILE}"
+
+    # 파일 존재 체크 → 없으면 중단
+    if [[ ! -f "${keystore_path}" ]]; then
+        die "HTTPS 활성화됨, 인증서 파일 없음: ${keystore_path}"
+    fi
+
+    # 기본값 사용 시 경고
+    if [[ "${WAS_SSL_KEYSTORE_FILE}" == "localhost-rsa.jks" ]] && \
+       [[ "${WAS_SSL_KEYSTORE_PASSWORD}" == "changeit" ]]; then
+        log "========================================="
+        log "[경고] 기본 샘플 인증서 사용 중"
+        log "       운영환경에서는 실제 인증서로 교체 필요"
+        log "========================================="
+    fi
+
+    log "SSL 인증서 검증 완료: ${keystore_path}"
+}
+
+# ──────────────────────────────────────────────
+# 12. 스크립트 실행 권한 설정
 # ──────────────────────────────────────────────
 ensure_script_permissions() {
     log "스크립트 실행 권한 설정"
@@ -437,6 +474,7 @@ main() {
     load_site_conf
     prepare_install_base
     install_or_switch_tomcat
+    validate_ssl_config
     ensure_site_config
     link_tomcat_with_site_config
     deploy_war

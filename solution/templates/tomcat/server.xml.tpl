@@ -2,15 +2,18 @@
 <!--
     Tomcat server.xml 템플릿
 
-    - @WAS_HTTP_PORT@   : site.conf 의 WAS_HTTP_PORT 값으로 치환
-    - @WAS_HTTPS_PORT@  : site.conf 의 WAS_HTTPS_PORT 값으로 치환
-    - @WAS_APP_BASE@    : site.conf 의 WAS_APP_BASE 값으로 치환
+    - @WAS_SHUTDOWN_PORT@ : site.conf 의 WAS_SHUTDOWN_PORT 값으로 치환
+    - @WAS_HTTP_PORT@     : site.conf 의 WAS_HTTP_PORT 값으로 치환
+    - @WAS_HTTPS_PORT@    : site.conf 의 WAS_HTTPS_PORT 값으로 치환
+    - @WAS_APP_BASE@      : site.conf 의 WAS_APP_BASE 값으로 치환
+    - @WAS_SSL_KEYSTORE_FILE@     : SSL 인증서 파일 경로
+    - @WAS_SSL_KEYSTORE_PASSWORD@ : SSL 인증서 비밀번호
     - @HTTPS_CONNECTOR_BEGIN@ / @HTTPS_CONNECTOR_END@
         * install.sh 에서 WAS_ENABLE_HTTPS 플래그에 따라
           HTTPS 커넥터를 살리거나(주석 제거) 통째로 주석 한 줄로 교체
 -->
 
-<Server port="8005" shutdown="SHUTDOWN">
+<Server port="@WAS_SHUTDOWN_PORT@" shutdown="SHUTDOWN">
 
     <!-- 기본 리스너들 (Tomcat 표준 + 메모리릭 방지 등) -->
     <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
@@ -60,13 +63,9 @@
                 sslProtocol="TLS">
 
             <SSLHostConfig>
-                <!--
-                    keystore 설정은 샘플 값입니다 (추측입니다).
-                    실제 운영에서는 keystore 경로/비밀번호/alias 를 반드시 교체해야 합니다.
-                -->
                 <Certificate
-                        certificateKeystoreFile="conf/localhost-rsa.jks"
-                        certificateKeystorePassword="changeit"
+                        certificateKeystoreFile="conf/@WAS_SSL_KEYSTORE_FILE@"
+                        certificateKeystorePassword="@WAS_SSL_KEYSTORE_PASSWORD@"
                         type="RSA" />
             </SSLHostConfig>
         </Connector>
