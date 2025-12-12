@@ -89,7 +89,7 @@ show_targets() {
   log "========================================"
 
   if [[ "${FULL_UNINSTALL}" == "Y" ]]; then
-    log "[FULL] INSTALL_BASE 전체: ${INSTALL_BASE}"
+    log "[FULL] INSTALL_BASE 내용물 전체: ${INSTALL_BASE}/* (폴더 자체는 유지)"
   else
     log "[기본] Tomcat 심볼릭 링크: ${TOMCAT_HOME}"
     log "[기본] Tomcat 실제 디렉토리: ${TOMCAT_ACTUAL}"
@@ -118,8 +118,9 @@ confirm_uninstall() {
 
   echo ""
   if [[ "${FULL_UNINSTALL}" == "Y" ]]; then
-    echo "경고: INSTALL_BASE 전체가 삭제됩니다!"
+    echo "경고: INSTALL_BASE 내용물 전체가 삭제됩니다!"
     echo "      설정, 로그, 데이터, 백업 모두 삭제됩니다."
+    echo "      (폴더 자체는 유지됩니다)"
   fi
   echo ""
   read -r -p "정말 삭제하시겠습니까? (y/N): " answer
@@ -166,13 +167,15 @@ uninstall_tomcat_only() {
 
 # ──────────────────────────────────────────────
 # 전체 삭제 (--full)
+# 주의: INSTALL_BASE 폴더 자체는 유지하고 내용물만 삭제
+#       (폴더 삭제 권한이 없는 환경 대응)
 # ──────────────────────────────────────────────
 uninstall_full() {
-  log "INSTALL_BASE 전체 삭제 시작"
+  log "INSTALL_BASE 내용물 전체 삭제 시작"
 
   if [[ -d "${INSTALL_BASE}" ]]; then
-    log "전체 삭제: ${INSTALL_BASE}"
-    run "rm -rf \"${INSTALL_BASE}\""
+    log "전체 삭제 (폴더 유지, 내용물만 삭제): ${INSTALL_BASE}/*"
+    run "rm -rf \"${INSTALL_BASE:?}\"/*"
   else
     log "INSTALL_BASE 없음 (이미 삭제됨): ${INSTALL_BASE}"
   fi
