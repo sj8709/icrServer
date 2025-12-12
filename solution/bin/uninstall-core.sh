@@ -91,6 +91,18 @@ show_targets() {
 
   if [[ "${FULL_UNINSTALL}" == "Y" ]]; then
     log "[FULL] INSTALL_BASE 내용물 전체: ${INSTALL_BASE}/* (폴더 자체는 유지)"
+
+    # 번들 Java가 설치되어 있으면 안내
+    if [[ -L "${INSTALL_BASE}/java" ]]; then
+      local java_actual
+      java_actual="$(readlink -f "${INSTALL_BASE}/java" 2>/dev/null || echo "")"
+      log ""
+      log "[포함] 번들 Java:"
+      log "  - ${INSTALL_BASE}/java (심볼릭 링크)"
+      if [[ -n "${java_actual}" && -d "${java_actual}" ]]; then
+        log "  - ${java_actual} (실제 디렉토리)"
+      fi
+    fi
   else
     log "[기본] Tomcat 심볼릭 링크: ${TOMCAT_HOME}"
     log "[기본] Tomcat 실제 디렉토리: ${TOMCAT_ACTUAL}"
@@ -100,6 +112,11 @@ show_targets() {
     log "  - ${INSTALL_BASE}/logs"
     log "  - ${INSTALL_BASE}/data"
     log "  - ${INSTALL_BASE}/backup"
+
+    # 번들 Java가 설치되어 있으면 안내
+    if [[ -L "${INSTALL_BASE}/java" ]]; then
+      log "  - ${INSTALL_BASE}/java (번들 Java)"
+    fi
   fi
 
   log "========================================"
