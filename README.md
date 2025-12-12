@@ -29,6 +29,8 @@ icr-solution/
 ├── README.md
 ├── packages/
 │   ├── apache-tomcat-*.tar.gz # Tomcat 배포판 (버전별 복수 가능)
+│   ├── JDK21_x64.tar.gz       # 번들 JDK (Intel/AMD, JAVA_SOURCE=bundled 시 필요)
+│   ├── JDK21_arm.tar.gz       # 번들 JDK (ARM64, JAVA_SOURCE=bundled 시 필요)
 │   └── icr.war                # 애플리케이션 WAR
 └── solution/
     ├── bin/
@@ -56,11 +58,13 @@ icr-solution/
 
 ```
 /opt/icr-solution/              # INSTALL_BASE
-├── tomcat -> apache-tomcat-*   # 심볼릭 링크
+├── tomcat -> apache-tomcat-*   # Tomcat 심볼릭 링크
 ├── apache-tomcat-10.1.50/      # 실제 Tomcat 디렉토리
 │   ├── icr-webapps/
-│   │   └── icr.war
+│   │   └── ROOT/               # 압축 해제된 WAR
 │   └── logs/
+├── java -> jdk-21.0.9+10       # Java 심볼릭 링크 (JAVA_SOURCE=bundled 시)
+├── jdk-21.0.9+10/              # 번들 JDK 디렉토리 (JAVA_SOURCE=bundled 시)
 ├── config/
 │   └── tomcat/                 # 생성된 설정 파일들
 │       ├── server.xml
@@ -72,6 +76,8 @@ icr-solution/
 └── backup/
     └── war/                    # WAR 백업 파일들
 ```
+
+> **참고**: `JAVA_SOURCE=bundled` 설정 시 `java/`, `jdk-21.0.9+10/` 디렉토리가 생성됩니다. `JAVA_SOURCE=system` 사용 시에는 생성되지 않습니다.
 
 ---
 
@@ -89,7 +95,8 @@ solution/config/site.conf
 |------|------|------|
 | `SITE` | 사이트 식별자 | `INFODEA` |
 | `ENV` | 환경 프로파일 (Spring) | `dev`, `prod-web`, `prod-batch` |
-| `JAVA_HOME` | Java 설치 경로 | `/usr/lib/jvm/temurin-21` |
+| `JAVA_SOURCE` | Java 소스 선택 | `system`, `bundled` |
+| `JAVA_HOME` | Java 설치 경로 (JAVA_SOURCE=system 시 필수) | `/usr/lib/jvm/temurin-21` |
 | `INSTALL_BASE` | 설치 기본 경로 | `/opt/icr-solution` |
 | `TOMCAT_DIST_NAME` | Tomcat 배포판 이름 | `apache-tomcat-10.1.50` |
 | `TOMCAT_HOME` | Tomcat 심볼릭 링크 경로 | `/opt/icr-solution/tomcat` |
@@ -97,11 +104,35 @@ solution/config/site.conf
 | `WAS_APP_BASE` | 앱 배포 디렉토리 (상대경로) | `icr-webapps` |
 | `JASYPT_ENCRYPTOR_PASSWORD` | Jasypt 복호화 키 | `********` |
 
-> **참고**: `JAVA_HOME`은 사이트 환경에 맞게 설정 필수. 일반적인 경로 예시:
-> - RHEL/CentOS: `/usr/lib/jvm/java-17-openjdk`
-> - Ubuntu/Debian: `/usr/lib/jvm/java-17-openjdk-amd64`
+#### Java 설정 방식
+
+**1. 시스템 Java 사용 (JAVA_SOURCE=system)**
+
+시스템에 설치된 JDK를 사용한다. `JAVA_HOME` 설정 필수.
+
+```bash
+JAVA_SOURCE=system
+JAVA_HOME=/usr/lib/jvm/temurin-21
+```
+
+> 일반적인 경로 예시:
+> - RHEL/CentOS: `/usr/lib/jvm/java-21-openjdk`
+> - Ubuntu/Debian: `/usr/lib/jvm/java-21-openjdk-amd64`
 > - Eclipse Temurin: `/usr/lib/jvm/temurin-21`
-> - Amazon Corretto: `/usr/lib/jvm/java-17-amazon-corretto`
+> - Amazon Corretto: `/usr/lib/jvm/java-21-amazon-corretto`
+
+**2. 번들 Java 사용 (JAVA_SOURCE=bundled)**
+
+패키지에 포함된 JDK를 자동 설치한다. 폐쇄망 환경에서 권장.
+
+```bash
+JAVA_SOURCE=bundled
+# JAVA_HOME은 자동 설정됨 (설정값 무시)
+```
+
+- 아키텍처 자동 감지 (x64/arm64)
+- 필요 파일: `packages/JDK21_x64.tar.gz` 또는 `packages/JDK21_arm.tar.gz`
+- 설치 위치: `$INSTALL_BASE/java` -> `$INSTALL_BASE/jdk-21.0.9+10`
 
 ### 선택 설정
 

@@ -72,7 +72,9 @@ run() {
 ### Installed Structure (INSTALL_BASE)
 ```
 /opt/icr-solution/
-├── tomcat -> apache-tomcat-*    # 심볼릭 링크
+├── tomcat -> apache-tomcat-*    # Tomcat 심볼릭 링크
+├── java -> jdk-21.0.9+10        # Java 심볼릭 링크 (JAVA_SOURCE=bundled 시)
+├── jdk-21.0.9+10/               # 번들 JDK (JAVA_SOURCE=bundled 시)
 ├── config/tomcat/               # 생성된 설정 파일
 ├── backup/war/                  # WAR 백업
 ├── logs/, data/                 # 예약 디렉토리

@@ -65,11 +65,11 @@ export JAVA_OPTS="$JAVA_OPTS -Djasypt.encryptor.password=@JASYPT_ENCRYPTOR_PASSW
 #  7. 추가 JVM 옵션 (필요시 주석 해제)
 # ============================================================================
 
-# GC 설정 (Java 17+에서는 G1GC가 기본)
+# GC 설정 (Java 21+에서는 G1GC가 기본)
 # export JAVA_OPTS="$JAVA_OPTS -XX:+UseG1GC"
 # export JAVA_OPTS="$JAVA_OPTS -XX:MaxGCPauseMillis=200"
 
-# GC 로그 (Java 17+ 형식)
+# GC 로그 (Java 21+ 형식)
 # export JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:file=${CATALINA_HOME}/logs/gc.log:time,uptime:filecount=5,filesize=10M"
 
 # 힙 덤프 (OOM 발생 시 자동 생성)
