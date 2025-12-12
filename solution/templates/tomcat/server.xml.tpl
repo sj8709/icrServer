@@ -1,23 +1,23 @@
+#
+# server.xml.tpl - Tomcat 서버 설정 템플릿
+#
+# 생성: install-core.sh에 의해 자동 생성
+# 위치: $INSTALL_BASE/config/tomcat/server.xml
+#
+# 토큰 목록 (site.conf 값으로 치환):
+#   @WAS_SHUTDOWN_PORT@          Tomcat 종료 포트
+#   @WAS_HTTP_PORT@              HTTP 커넥터 포트
+#   @WAS_HTTPS_PORT@             HTTPS 커넥터 포트
+#   @WAS_APP_BASE@               애플리케이션 배포 디렉토리
+#   @WAS_SSL_KEYSTORE_FILE@      SSL 인증서 파일명
+#   @WAS_SSL_KEYSTORE_PASSWORD@  SSL 인증서 비밀번호
+#
+# 조건부 토큰:
+#   @HTTPS_CONNECTOR_BEGIN@ / @HTTPS_CONNECTOR_END@
+#     WAS_ENABLE_HTTPS=Y: HTTPS 커넥터 활성화
+#     WAS_ENABLE_HTTPS=N: HTTPS 커넥터 블록 삭제
+#
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-    server.xml - Tomcat 서버 설정
-
-    생성: install-core.sh에 의해 템플릿에서 자동 생성
-    위치: $INSTALL_BASE/config/tomcat/server.xml -> $TOMCAT_HOME/conf/server.xml (심볼릭 링크)
-
-    토큰 목록 (site.conf 값으로 치환):
-      @WAS_SHUTDOWN_PORT@          Tomcat 종료 포트
-      @WAS_HTTP_PORT@              HTTP 커넥터 포트
-      @WAS_HTTPS_PORT@             HTTPS 커넥터 포트
-      @WAS_APP_BASE@               애플리케이션 배포 디렉토리
-      @WAS_SSL_KEYSTORE_FILE@      SSL 인증서 파일명
-      @WAS_SSL_KEYSTORE_PASSWORD@  SSL 인증서 비밀번호
-
-    조건부 토큰:
-      @HTTPS_CONNECTOR_BEGIN@ / @HTTPS_CONNECTOR_END@
-        - WAS_ENABLE_HTTPS=Y: HTTPS 커넥터 활성화 (주석 제거)
-        - WAS_ENABLE_HTTPS=N: HTTPS 커넥터 비활성화 (주석 처리)
--->
 
 <Server port="@WAS_SHUTDOWN_PORT@" shutdown="SHUTDOWN">
 

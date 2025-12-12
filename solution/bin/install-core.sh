@@ -234,7 +234,8 @@ render_server_xml() {
         die "템플릿 없음: ${TEMPLATE_TOMCAT_DIR}/server.xml.tpl"
     fi
 
-    cp "${TEMPLATE_TOMCAT_DIR}/server.xml.tpl" "${tmp}"
+    # 템플릿 주석(#) 제거 후 복사
+    grep -v '^#' "${TEMPLATE_TOMCAT_DIR}/server.xml.tpl" > "${tmp}"
 
     # 토큰 치환
     sed -i \
@@ -250,30 +251,16 @@ render_server_xml() {
     if [[ "${WAS_ENABLE_HTTPS}" == "Y" ]]; then
         log "HTTPS 활성화: Connector 블럭 유지"
         sed -i \
-            -e "s|@HTTPS_CONNECTOR_BEGIN@||g" \
-            -e "s|@HTTPS_CONNECTOR_END@||g" \
+            -e "s|.*@HTTPS_CONNECTOR_BEGIN@.*||g" \
+            -e "s|.*@HTTPS_CONNECTOR_END@.*||g" \
             "${tmp}"
     else
-        log "HTTPS 비활성화: Connector 블럭 주석 처리"
+        log "HTTPS 비활성화: Connector 블럭 삭제"
         local tmp2="${tmp}.2"
         awk '
-            /@HTTPS_CONNECTOR_BEGIN@/ {
-                if (!in_https) {
-                    print "<!-- HTTPS connector disabled by install-core";
-                    in_https = 1;
-                }
-                print $0;
-                next;
-            }
-            /@HTTPS_CONNECTOR_END@/ {
-                print $0;
-                if (in_https) {
-                    print "HTTPS connector end -->";
-                    in_https = 0;
-                }
-                next;
-            }
-            { print $0; }
+            /@HTTPS_CONNECTOR_BEGIN@/ { in_https = 1; next; }
+            /@HTTPS_CONNECTOR_END@/   { in_https = 0; next; }
+            !in_https { print $0; }
         ' "${tmp}" > "${tmp2}"
         mv "${tmp2}" "${tmp}"
     fi
