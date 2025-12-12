@@ -80,6 +80,7 @@ run() {
 
 ## Script Conventions
 
+- 이모지 사용 금지 (Linux 터미널 호환성)
 - 모든 스크립트는 `set -euo pipefail` 또는 `set -Eeuo pipefail` 사용
 - 스크립트마다 `log()`, `die()` 함수 정의 (공통 모듈 미사용)
 - 경로 계산: `SCRIPT_DIR → SOLUTION_HOME → BASE_DIR` 패턴

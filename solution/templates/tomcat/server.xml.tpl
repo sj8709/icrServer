@@ -1,30 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Tomcat server.xml 템플릿
+    server.xml - Tomcat 서버 설정
 
-    - @WAS_SHUTDOWN_PORT@ : site.conf 의 WAS_SHUTDOWN_PORT 값으로 치환
-    - @WAS_HTTP_PORT@     : site.conf 의 WAS_HTTP_PORT 값으로 치환
-    - @WAS_HTTPS_PORT@    : site.conf 의 WAS_HTTPS_PORT 값으로 치환
-    - @WAS_APP_BASE@      : site.conf 의 WAS_APP_BASE 값으로 치환
-    - @WAS_SSL_KEYSTORE_FILE@     : SSL 인증서 파일 경로
-    - @WAS_SSL_KEYSTORE_PASSWORD@ : SSL 인증서 비밀번호
-    - @HTTPS_CONNECTOR_BEGIN@ / @HTTPS_CONNECTOR_END@
-        * install.sh 에서 WAS_ENABLE_HTTPS 플래그에 따라
-          HTTPS 커넥터를 살리거나(주석 제거) 통째로 주석 한 줄로 교체
+    생성: install-core.sh에 의해 템플릿에서 자동 생성
+    위치: $INSTALL_BASE/config/tomcat/server.xml -> $TOMCAT_HOME/conf/server.xml (심볼릭 링크)
+
+    토큰 목록 (site.conf 값으로 치환):
+      @WAS_SHUTDOWN_PORT@          Tomcat 종료 포트
+      @WAS_HTTP_PORT@              HTTP 커넥터 포트
+      @WAS_HTTPS_PORT@             HTTPS 커넥터 포트
+      @WAS_APP_BASE@               애플리케이션 배포 디렉토리
+      @WAS_SSL_KEYSTORE_FILE@      SSL 인증서 파일명
+      @WAS_SSL_KEYSTORE_PASSWORD@  SSL 인증서 비밀번호
+
+    조건부 토큰:
+      @HTTPS_CONNECTOR_BEGIN@ / @HTTPS_CONNECTOR_END@
+        - WAS_ENABLE_HTTPS=Y: HTTPS 커넥터 활성화 (주석 제거)
+        - WAS_ENABLE_HTTPS=N: HTTPS 커넥터 비활성화 (주석 처리)
 -->
 
 <Server port="@WAS_SHUTDOWN_PORT@" shutdown="SHUTDOWN">
 
-    <!-- 기본 리스너들 (Tomcat 표준 + 메모리릭 방지 등) -->
+    <!-- ===================================================================== -->
+    <!--  1. 리스너 설정                                                        -->
+    <!-- ===================================================================== -->
+
+    <!-- 버전 정보 로깅 -->
     <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
+
+    <!-- 보안 리스너 -->
     <Listener className="org.apache.catalina.security.SecurityListener" />
+
+    <!-- APR/Native 라이브러리 (SSL 하드웨어 가속) -->
     <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+
+    <!-- JRE 메모리 누수 방지 -->
     <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+
+    <!-- 글로벌 리소스 라이프사이클 -->
     <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+
+    <!-- ThreadLocal 누수 방지 -->
     <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
 
-    <!-- Global JNDI resources -->
+    <!-- ===================================================================== -->
+    <!--  2. 글로벌 JNDI 리소스                                                 -->
+    <!-- ===================================================================== -->
+
     <GlobalNamingResources>
+        <!-- 사용자 데이터베이스 (tomcat-users.xml) -->
         <Resource name="UserDatabase" auth="Container"
                   type="org.apache.catalina.UserDatabase"
                   description="User database that can be updated and saved"
@@ -32,12 +56,16 @@
                   pathname="conf/tomcat-users.xml" />
     </GlobalNamingResources>
 
-    <!-- =================================================================== -->
-    <!-- Service: Catalina                                                   -->
-    <!-- =================================================================== -->
+    <!-- ===================================================================== -->
+    <!--  3. Service: Catalina                                                 -->
+    <!-- ===================================================================== -->
+
     <Service name="Catalina">
 
-        <!-- HTTP/1.1 기본 커넥터 -->
+        <!-- ================================================================= -->
+        <!--  3-1. HTTP 커넥터                                                 -->
+        <!-- ================================================================= -->
+
         <Connector
                 port="@WAS_HTTP_PORT@"
                 protocol="HTTP/1.1"
@@ -47,9 +75,9 @@
                 URIEncoding="UTF-8"
                 server="Secure Server" />
 
-        <!-- =================================================================== -->
-        <!-- HTTPS 커넥터 (플래그로 on/off)                                       -->
-        <!-- =================================================================== -->
+        <!-- ================================================================= -->
+        <!--  3-2. HTTPS 커넥터 (WAS_ENABLE_HTTPS 플래그로 활성화/비활성화)     -->
+        <!-- ================================================================= -->
 
         <!-- @HTTPS_CONNECTOR_BEGIN@ -->
         <Connector
@@ -71,42 +99,50 @@
         </Connector>
         <!-- @HTTPS_CONNECTOR_END@ -->
 
-        <!-- AJP 는 기본 비활성. 필요하면 방화벽/secret 설정 후 주석 해제 -->
+        <!-- ================================================================= -->
+        <!--  3-3. AJP 커넥터 (기본 비활성화)                                   -->
+        <!--       Apache HTTP Server 연동 시 주석 해제                        -->
+        <!--       반드시 secretRequired + 방화벽 설정 필요                    -->
+        <!-- ================================================================= -->
         <!--
         <Connector
                 protocol="AJP/1.3"
                 port="8009"
                 redirectPort="@WAS_HTTPS_PORT@"
                 secretRequired="true"
-                address="::1" />
+                secret="YOUR_AJP_SECRET"
+                address="127.0.0.1" />
         -->
 
-        <!-- =================================================================== -->
-        <!-- Engine + Host                                                      -->
-        <!-- =================================================================== -->
+        <!-- ================================================================= -->
+        <!--  3-4. Engine                                                      -->
+        <!-- ================================================================= -->
 
         <Engine name="Catalina" defaultHost="localhost">
 
-            <!-- LockOutRealm + UserDatabaseRealm -->
+            <!-- LockOutRealm: 무차별 대입 공격 방지 -->
             <Realm className="org.apache.catalina.realm.LockOutRealm">
                 <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
                        resourceName="UserDatabase" />
             </Realm>
 
-            <!-- Host 설정 -->
+            <!-- ============================================================= -->
+            <!--  3-5. Host                                                    -->
+            <!-- ============================================================= -->
+
             <Host name="localhost"
                   appBase="@WAS_APP_BASE@"
                   unpackWARs="true"
                   autoDeploy="false">
 
-                <!-- AccessLogValve (필요 시 패턴 조정 가능, 현재는 기본형 / 확실하지 않음) -->
+                <!-- 액세스 로그 -->
                 <Valve className="org.apache.catalina.valves.AccessLogValve"
                        directory="logs"
                        prefix="localhost_access_log"
                        suffix=".txt"
                        pattern="%h %l %u %t &quot;%r&quot; %s %b" />
 
-                <!-- RemoteIpValve: 프록시/L4 뒤에서 클라이언트 IP/HTTPS 판별용 -->
+                <!-- 리버스 프록시 지원 (L4/L7/Nginx 뒤에서 실제 클라이언트 IP 식별) -->
                 <Valve className="org.apache.catalina.valves.RemoteIpValve"
                        remoteIpHeader="x-forwarded-for"
                        protocolHeader="x-forwarded-proto"
@@ -114,8 +150,8 @@
                        requestAttributesEnabled="true"
                        internalProxies=""
                        httpsServerPort="443" />
+
             </Host>
         </Engine>
     </Service>
 </Server>
-

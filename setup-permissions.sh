@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 #
-# setup-permissions.sh — 스크립트 실행 권한 설정
+# setup-permissions.sh - 스크립트 실행 권한 복구
 #
-# Windows에서 작업 후 Linux로 복사 시 실행 권한이 사라지는 경우
-# 이 스크립트를 1회 실행하여 권한을 복구합니다.
+# 용도:
+#   Windows에서 작업 후 Linux로 복사 시 실행 권한이 사라지는 경우
+#   이 스크립트를 1회 실행하여 권한을 복구합니다.
 #
-# 사용법:
+# 실행:
 #   chmod +x setup-permissions.sh && ./setup-permissions.sh
-#   또는
 #   bash setup-permissions.sh
+#
+# 권한 설정 대상:
+#   - 루트: install.sh, uninstall.sh 등
+#   - solution/bin/*.sh
+#   - solution/modules/*.sh
 #
 set -euo pipefail
 
@@ -18,7 +23,7 @@ echo "[setup-permissions] 스크립트 실행 권한 설정 시작"
 
 # 루트 스크립트
 chmod +x "${BASE_DIR}/"*.sh 2>/dev/null || true
-echo "  - 루트 스크립트: ${BASE_DIR}/*.sh"
+echo "  - 루트: ${BASE_DIR}/*.sh"
 
 # solution/bin/*.sh
 if [[ -d "${BASE_DIR}/solution/bin" ]]; then
