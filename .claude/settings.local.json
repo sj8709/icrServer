@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(./solution/bin/deploy-war.sh:*)",
+      "Bash(./solution/bin/check.sh:*)",
+      "Bash(./solution/bin/health.sh:*)",
+      "Bash(./solution/bin/health-https.sh:*)",
+      "Bash(./solution/bin/uninstall-core.sh:*)"
+    ]
+  }
+}
