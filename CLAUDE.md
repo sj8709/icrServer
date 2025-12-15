@@ -40,7 +40,9 @@ bash setup-permissions.sh
 ### Script Layer Pattern
 - **래퍼 스크립트** (`install.sh`, `uninstall.sh`): 루트에 위치, `solution/bin/*-core.sh` 호출
 - **코어 스크립트** (`solution/bin/*-core.sh`): 실제 로직 구현
-- **공통 모듈** (`solution/modules/service_control.sh`): `svc_start()`, `svc_stop()`, `is_running()`, `load_site_conf()` 등 제공
+- **공통 모듈** (`solution/modules/`):
+  - `service_control.sh`: `svc_start()`, `svc_stop()`, `is_running()`, `load_site_conf()` 등 제공
+  - `logging.sh`: `init_logging()`, `log()`, `die()` 제공 (스크립트 실행 로그)
 
 ### Configuration Flow
 ```
@@ -68,6 +70,7 @@ run() {
 | `solution/modules/` | 공통 bash 모듈 |
 | `solution/templates/` | 설정 파일 템플릿 |
 | `solution/config/` | site.conf |
+| `solution/logs/` | 스크립트 실행 로그 |
 
 ### Installed Structure (INSTALL_BASE)
 ```
@@ -84,9 +87,10 @@ run() {
 
 - 이모지 사용 금지 (Linux 터미널 호환성)
 - 모든 스크립트는 `set -euo pipefail` 또는 `set -Eeuo pipefail` 사용
-- 스크립트마다 `log()`, `die()` 함수 정의 (공통 모듈 미사용)
+- `logging.sh` 모듈 사용: `log()`, `die()`, `init_logging()` 함수 제공
 - 경로 계산: `SCRIPT_DIR → SOLUTION_HOME → BASE_DIR` 패턴
-- 모듈 로딩: `source "${ROOT_DIR}/solution/modules/service_control.sh"`
+- 모듈 로딩 순서: `logging.sh` → `service_control.sh`
+- 스크립트 실행 로그: `solution/logs/{스크립트명}-{YYYYMMDD}.log`
 
 ## site.conf Required Variables
 
