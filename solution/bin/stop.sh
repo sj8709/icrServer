@@ -9,9 +9,12 @@ set -Eeuo pipefail
 
 SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SELF_DIR}/../.." && pwd)"
+SOLUTION_HOME="${ROOT_DIR}/solution"
 
 # shellcheck disable=SC1090
-source "${ROOT_DIR}/solution/modules/service_control.sh"
+source "${SOLUTION_HOME}/modules/logging.sh"
+source "${SOLUTION_HOME}/modules/service_control.sh"
+init_logging "stop"
 
 load_site_conf "${ROOT_DIR}"
 svc_diag

@@ -11,9 +11,10 @@
 #   load_site_conf "${ROOT_DIR}"
 #   svc_start / svc_stop / svc_restart / svc_status
 #
+# 의존성:
+#   logging.sh      log(), die() 함수 제공 (먼저 source 필요)
+#
 # 제공 함수:
-#   log()           로그 출력 (타임스탬프 포함)
-#   die()           에러 출력 후 종료
 #   run()           DRY_RUN 지원 명령 실행
 #   load_site_conf()  site.conf 로드 및 필수 변수 검증
 #   svc_diag()      진단 정보 출력
@@ -38,17 +39,16 @@
 set -Eeuo pipefail
 
 # ============================================================================
-#  로깅 함수
+#  로깅 함수 (logging.sh 모듈에서 제공)
 # ============================================================================
-
-log() {
-  printf '[%s] %s\n' "$(date '+%F %T')" "$*"
-}
-
-die() {
-  printf '[%s] ERROR: %s\n' "$(date '+%F %T')" "$*" >&2
-  exit 1
-}
+# log(), die() 함수는 logging.sh에 정의되어 있습니다.
+# 이 모듈을 사용하기 전에 logging.sh를 먼저 source 해야 합니다.
+#
+# 사용 예:
+#   source "${SOLUTION_HOME}/modules/logging.sh"
+#   source "${SOLUTION_HOME}/modules/service_control.sh"
+#   init_logging "start"
+# ============================================================================
 
 # ============================================================================
 #  실행 헬퍼 (DRY_RUN 지원)
