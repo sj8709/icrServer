@@ -122,3 +122,16 @@ run() {
 - 템플릿(*.tpl) 변경 → 개발자 매뉴얼 갱신
 - 스크립트 옵션 변경 → 운영자 매뉴얼 갱신
 - 디렉토리 구조 변경 → 모든 문서 갱신
+
+## Git Commit Convention
+
+커밋 메시지 작성 시 다음 규칙을 따릅니다:
+
+- Claude Code 자동 생성 문구 제외 (🤖 Generated with Claude Code 등)
+- 한글 커밋 메시지 사용
+- Conventional Commits 형식: `type: 제목`
+  - `feat`: 새 기능
+  - `fix`: 버그 수정
+  - `docs`: 문서 변경
+  - `refactor`: 리팩토링
+  - `chore`: 빌드/설정 변경
