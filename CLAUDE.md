@@ -103,3 +103,18 @@ run() {
 | `WAS_SSL_KEYSTORE_FILE` | SSL 인증서 파일명 (HTTPS 사용 시) |
 | `WAS_SSL_KEYSTORE_PASSWORD` | SSL 인증서 비밀번호 (HTTPS 사용 시) |
 | `JASYPT_ENCRYPTOR_PASSWORD` | Jasypt 복호화 키 |
+
+## Documentation Sync
+
+코드 변경 시 아래 문서들을 항상 최신 상태로 유지해야 합니다.
+
+| 문서 | 용도 | 갱신 시점 |
+|------|------|----------|
+| `CLAUDE.md` | Claude Code 가이드 | 아키텍처/스크립트 변경 시 |
+| `docs/개발자_매뉴얼.md` | 개발자용 상세 가이드 | site.conf/템플릿/JVM 옵션 변경 시 |
+| `docs/운영자_매뉴얼.md` | 운영자용 실행 가이드 | 설치/운영 절차 변경 시 |
+
+**갱신 원칙:**
+- 템플릿(*.tpl) 변경 → 개발자 매뉴얼 갱신
+- 스크립트 옵션 변경 → 운영자 매뉴얼 갱신
+- 디렉토리 구조 변경 → 모든 문서 갱신
