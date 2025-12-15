@@ -23,15 +23,23 @@
 
 ```
 icr-solution/
+├── README.md                  # 빠른 시작 가이드
 ├── install.sh                 # 설치 진입점 (래퍼)
 ├── uninstall.sh               # 제거 진입점 (래퍼)
 ├── setup-permissions.sh       # 실행 권한 복구 스크립트
-├── README.md
+├── logging.sh                 # 공통 로깅 모듈
+│
+├── docs/                      # 문서
+│   ├── 01.ICR_솔루션_개발자_메뉴얼.pdf
+│   ├── 02.ICR_솔루션_운영자_메뉴얼.pdf
+│   └── 03.ICR_솔루션_명령어_모음.pdf
+│
 ├── packages/
 │   ├── apache-tomcat-*.tar.gz # Tomcat 배포판 (버전별 복수 가능)
 │   ├── JDK21_x64.tar.gz       # 번들 JDK (Intel/AMD, JAVA_SOURCE=bundled 시 필요)
 │   ├── JDK21_arm.tar.gz       # 번들 JDK (ARM64, JAVA_SOURCE=bundled 시 필요)
 │   └── icr.war                # 애플리케이션 WAR
+│
 └── solution/
     ├── bin/
     │   ├── install-core.sh    # 설치 코어 로직
@@ -45,6 +53,7 @@ icr-solution/
     ├── config/
     │   └── site.conf          # 사이트별 설정 파일
     ├── modules/
+    │   ├── logging.sh         # 로깅 함수 (log, die, init_logging)
     │   └── service_control.sh # 공통 서비스 제어 모듈
     └── templates/
         └── tomcat/
