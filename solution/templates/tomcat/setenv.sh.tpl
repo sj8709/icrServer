@@ -54,6 +54,9 @@ export JAVA_OPTS="$JAVA_OPTS -Dicr.site=@SITE@"
 export ICR_CONFIG_DIR="@ICR_CONFIG_DIR@"
 export JAVA_OPTS="$JAVA_OPTS -Dicr.config.dir=${ICR_CONFIG_DIR}"
 
+# 로그 디렉토리 (Logback LOG_PATH 시스템 프로퍼티)
+export JAVA_OPTS="$JAVA_OPTS -DLOG_PATH=@INSTALL_BASE@/logs"
+
 # ============================================================================
 #  6. 보안 설정
 # ============================================================================

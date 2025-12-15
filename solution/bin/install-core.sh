@@ -392,8 +392,10 @@ install_bundled_java() {
     fi
 
     # 번들에서 디렉토리명 추출 (첫 번째 경로 컴포넌트)
+    # NOTE: pipefail 환경에서 head가 파이프를 닫으면 tar가 SIGPIPE를 받아 종료됨
+    #       || true로 파이프라인 실패를 무시 (결과는 정상 캡처됨)
     local java_dir_name
-    java_dir_name="$(tar -tzf "${java_tgz}" 2>/dev/null | head -1 | cut -d'/' -f1)"
+    java_dir_name="$(tar -tzf "${java_tgz}" 2>/dev/null | head -1 | cut -d'/' -f1)" || true
 
     if [[ -z "${java_dir_name}" ]]; then
         die "Java 번들 구조 파싱 실패: ${java_tgz}"
@@ -570,6 +572,7 @@ render_setenv_sh() {
         -e "s|@JVM_TIMEZONE@|${JVM_TIMEZONE}|g" \
         -e "s|@ICR_CONFIG_DIR@|${ICR_CONFIG_DIR}|g" \
         -e "s|@JASYPT_ENCRYPTOR_PASSWORD@|${JASYPT_ENCRYPTOR_PASSWORD}|g" \
+        -e "s|@INSTALL_BASE@|${INSTALL_BASE}|g" \
         "${tmp}"
 
     mv "${tmp}" "${dst}"
