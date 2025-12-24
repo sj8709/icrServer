@@ -65,7 +65,7 @@ run() {
 ### Directory Conventions
 | 경로 | 용도 |
 |------|------|
-| `packages/` | Tomcat tgz, icr.war 원본 |
+| `packages/` | Tomcat tgz, WAR 파일 원본 |
 | `solution/bin/` | 실행 스크립트 |
 | `solution/modules/` | 공통 bash 모듈 |
 | `solution/templates/` | 설정 파일 템플릿 |
@@ -104,6 +104,7 @@ run() {
 | `WAS_SHUTDOWN_PORT` | Tomcat Shutdown 포트 (다중 인스턴스 시 변경) |
 | `WAS_HTTP_PORT` | HTTP 포트 |
 | `WAS_APP_BASE` | 앱 배포 디렉토리 (상대경로) |
+| `WAR_NAME` | WAR 파일명 (기본: icr.war) |
 | `WAS_SSL_KEYSTORE_FILE` | SSL 인증서 파일명 (HTTPS 사용 시) |
 | `WAS_SSL_KEYSTORE_PASSWORD` | SSL 인증서 비밀번호 (HTTPS 사용 시) |
 | `JASYPT_ENCRYPTOR_PASSWORD` | Jasypt 복호화 키 |

@@ -132,7 +132,7 @@ echo "------------------------------------------------------------"
 echo "4) WAR 배포 파일"
 echo "------------------------------------------------------------"
 APP_BASE_DIR="${TOMCAT_HOME}/${WAS_APP_BASE}"
-WAR_PATH="${APP_BASE_DIR}/icr.war"
+WAR_PATH="${APP_BASE_DIR}/${WAR_NAME}"
 
 echo "APP_BASE_DIR = ${APP_BASE_DIR}"
 echo "WAR_PATH     = ${WAR_PATH}"

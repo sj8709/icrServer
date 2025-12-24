@@ -678,7 +678,7 @@ validate_ssl_config() {
 # ------------------------------------------------------------------------------
 # deploy_war - WAR 파일 배포
 #
-# packages/icr.war 파일을 Tomcat appBase 디렉토리에 복사.
+# packages/${WAR_NAME} 파일을 Tomcat appBase 디렉토리에 복사.
 #
 # 동작:
 #   - 이미 존재하고 ICR_FORCE_REGEN=N: 기존 유지
@@ -686,32 +686,32 @@ validate_ssl_config() {
 #   - 존재하지 않음: 신규 배포
 #
 # Prerequisites:
-#   - packages/icr.war 파일 필요
+#   - packages/${WAR_NAME} 파일 필요
 # ------------------------------------------------------------------------------
 deploy_war() {
-    local src_war="${PACKAGES_DIR}/icr.war"
+    local src_war="${PACKAGES_DIR}/${WAR_NAME}"
     local dst_dir="${TOMCAT_HOME}/${WAS_APP_BASE}"
-    local dst_war="${dst_dir}/icr.war"
+    local dst_war="${dst_dir}/${WAR_NAME}"
 
     log "WAR 배포: ${src_war} -> ${dst_war}"
 
     if [[ ! -f "${src_war}" ]]; then
         die "WAR 파일 없음: ${src_war}
-    -> packages/ 디렉토리에 icr.war 파일 필요"
+    -> packages/ 디렉토리에 ${WAR_NAME} 파일 필요"
     fi
 
     mkdir -p "${dst_dir}"
 
     if [[ -f "${dst_war}" && "${ICR_FORCE_REGEN}" != "Y" ]]; then
-        log "icr.war 이미 존재 -> 유지"
+        log "${WAR_NAME} 이미 존재 -> 유지"
         return 0
     fi
 
     if [[ -f "${dst_war}" && "${ICR_FORCE_REGEN}" == "Y" ]]; then
-        log "icr.war 강제 교체"
+        log "${WAR_NAME} 강제 교체"
         backup_if_exists "${dst_war}"
     else
-        log "icr.war 신규 배포"
+        log "${WAR_NAME} 신규 배포"
     fi
 
     cp -f "${src_war}" "${dst_war}"

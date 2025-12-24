@@ -9,7 +9,7 @@
 #   ./solution/bin/deploy-war.sh --war /path/to/app.war    # 특정 WAR 배포
 #
 # 옵션:
-#   --war <path>            배포할 WAR 파일 (기본: packages/icr.war)
+#   --war <path>            배포할 WAR 파일 (기본: packages/${WAR_NAME})
 #   --restart               재기동 수행 (기본)
 #   --no-restart            재기동 안 함
 #   --keep <N>              백업 보관 개수 (기본: 20)
@@ -50,7 +50,7 @@ usage() {
   deploy-war.sh [옵션]
 
 WAR / 재기동:
-  --war <path>            배포할 WAR 파일 (기본: packages/icr.war)
+  --war <path>            배포할 WAR 파일 (기본: packages/${WAR_NAME})
   --restart               재기동 수행 (기본)
   --no-restart            재기동 안 함
   --keep <N>              백업 보관 개수 (기본: 20)
@@ -117,12 +117,12 @@ fi
 load_site_conf "${ROOT_DIR}"
 
 if [[ -z "${WAR_SRC}" ]]; then
-    WAR_SRC="${PKG_DIR}/icr.war"
+    WAR_SRC="${PKG_DIR}/${WAR_NAME}"
 fi
 [[ -f "${WAR_SRC}" ]] || die "WAR 파일 없음: ${WAR_SRC}"
 
 APP_BASE_DIR="${TOMCAT_HOME}/${WAS_APP_BASE}"
-WAR_DST="${APP_BASE_DIR}/icr.war"
+WAR_DST="${APP_BASE_DIR}/${WAR_NAME}"
 
 TS="$(date +%Y%m%d_%H%M%S)"
 BACKUP_DIR="${INSTALL_BASE}/backup/war"
@@ -153,7 +153,7 @@ fi
 # ============================================================================
 
 if [[ -f "${WAR_DST}" ]]; then
-    BK="${BACKUP_DIR}/icr.war.${TS}"
+    BK="${BACKUP_DIR}/${WAR_NAME}.${TS}"
     log "백업: ${WAR_DST} -> ${BK}"
     run "cp -a \"${WAR_DST}\" \"${BK}\""
 else
@@ -174,10 +174,10 @@ run "cp -a \"${WAR_SRC}\" \"${WAR_DST}\""
 if [[ "${KEEP_N}" =~ ^[0-9]+$ ]] && (( KEEP_N >= 0 )); then
     log "오래된 백업 정리 (최근 ${KEEP_N}개 유지)"
     if [[ "${DRY_RUN}" == "Y" ]]; then
-        log "[DRY-RUN] ls -1t \"${BACKUP_DIR}\"/icr.war.* | tail -n +$((KEEP_N+1)) | xargs -r rm -f"
+        log "[DRY-RUN] ls -1t \"${BACKUP_DIR}\"/${WAR_NAME}.* | tail -n +$((KEEP_N+1)) | xargs -r rm -f"
     else
         # shellcheck disable=SC2012
-        ls -1t "${BACKUP_DIR}"/icr.war.* 2>/dev/null | tail -n +$((KEEP_N+1)) | xargs -r rm -f || true
+        ls -1t "${BACKUP_DIR}"/${WAR_NAME}.* 2>/dev/null | tail -n +$((KEEP_N+1)) | xargs -r rm -f || true
     fi
 fi
 
